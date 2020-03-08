@@ -1,8 +1,11 @@
 VTON (Virtual Terminal Object Notation) and Base252
 ---------------------------------------------------
 
-The VTON and Base252 encodings draw inspiration from UTF-8, VT100, TELNET, and
-seeks to create a flexible and powerful universal structured base encoding.
+The VTON and Base252 encodings draw inspiration from UTF-8, VT100, and TELNET.
+Base252 can stand alone, while VTON incorporates Base252.
+
+Base252 is an alternative for Base64, while VTON seeks to create a flexible
+and powerful universal object notation.
 
 Base252
 -------
