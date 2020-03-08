@@ -145,7 +145,7 @@ up on data types for more information.
 JSON further adds various escaping requirements to aid in human readability.
 However, the utility of this is questionable whenever the chance of a human
 actually looking at a data exchange is less than 0.0001%, and those that
-actually do look at a data exchanged are unlikely to be confused by the
+actually do look at a data exchange are unlikely to be confused by the
 inclusion of escape characters. Not to mention they could use a special
 viewer that displays escape characters in a readable manner.
 
@@ -160,7 +160,7 @@ following 6 special symbols.
 |----- | ---- | ---- | ------ |
 | 248  | 0xF8 | VTON_VARIABLE    | $ |
 | 249  | 0xF9 | VTON_VALUE       | = |
-| 250  | 0xFA | VTON_TABLE_OPEN  | } |
+| 250  | 0xFA | VTON_TABLE_OPEN  | { |
 | 251  | 0xFB | VTON_TABLE_CLOSE | } |
 | 252  | 0xFC | VTON_ARRAY_OPEN  | [ |
 | 253  | 0xFD | VTON_ARRAY_CLOSE | ] |
@@ -262,7 +262,7 @@ binary data that is easy to encode and decode.
 VTON overhead
 -------------
 Compared to Base252 VTON changes the average overhead from 1.7% to 4%. The
-best case remains 100% for ASCII and UTF-8 encoded text.
+best case remains 0% for ASCII and UTF-8 encoded text.
 
 The overhead of VTON compared to JSON is trickier to calculate, except that
 the VTON overhead is less in any given scenario.
@@ -272,7 +272,7 @@ means a 33.3% data overhead as well as a computational overhead.
 
 While JSON is readable, it is only readable by including spacing which further
 increases the data overhead. One could argue that spacing could be removed,
-but then any argument that JSON is more readable than VTON is moot.
+but then the argument that JSON is more readable than VTON is moot.
 
 VTON parser
 -----------
