@@ -13,9 +13,10 @@ Base252
 | Code |  Hex | Name    | Escape |
 |----- | ---- | ------  | ------ |
 |  0   | 0x00 | NUL     | 0x00 0x80 |
-| 192  | 0xC0 | ESC_0   | 0xF7 0x80 |
-| 193  | 0xC1 | ESC_64  | 0xF7 0x81 |
-| 247  | 0xF7 | ESC_192 | 0xF7 0xB7 |
+| 192  | 0xC0 | ESC_0   | 0x11 0x80 |
+| 193  | 0xC1 | ESC_64  | 0x11 0x81 |
+|  16  | 0x10 | ESC_128 | 0xC0 0x90 |
+|  17  | 0x11 | ESC_192 | 0xC0 0x91 |
 
 Translating binary data to Base252
 ----------------------------------
@@ -30,8 +31,8 @@ were to stick with UTF-8 0xC0 could be translated to 0xC3, but this would
 result in a lot of doubling for languages that use the unicode equivalent
 of the extended characters of ISO 8859-1.
 
-So instead each instance of 0xC0 is translated to 0xF7 0x80. And in turn
-each instance of 0xF7 needs to be translated to 0xF7 0xB7.
+So instead each instance of 0xC0 is translated to 0x11 0x80. And in turn
+each instance of 0x11 needs to be translated to 0xC0 0x91.
 
 Escaping
 --------
@@ -41,41 +42,48 @@ programming languages have special characters that pose processing or security
 issues when they are not escaped. The \ character comes to mind, but in
 theory any character can be a special character that needs to be escaped.
 
-In order to escape any ASCII character Base252 reserves 0xC0, 0xC1 for this
-purpose. The math to escape is simple and is semi UTF-8 compatible.
+In order to escape any ASCII character Base252 reserves 0xC0, 0xC1. The math
+to escape is simple and is semi UTF-8 compatible.
 ```
 0xC0 + char / 64
 0x80 + char % 64
 ```
 In turn 0xC0 and 0xC1 need to be escaped using.
 ```
-0xF7
+0x11
 0x80 + char % 64
 ```
-Subsequently we can optionally escape character 1 through 127, and character
-194 through 255 with the exception of character 247 aka 0xF7.
+Subsequently we can fully escape character 0 through 255 with the exception
+of 0x10, 0x11, 0xC0 and 0xC1.
 
-Characters 128 through 191 cannot be escaped. Translating data to Base252 is
-relatively easy.
+Characters 128 through 191 cannot be as easily escaped when 128 through 191 is
+used for the second byte of each escape codes. Instead a value between 64 and
+127 or a value between 192 and 255 needs to be used to encode the second byte.
+Special care is needed in that case in order to encode, though the decoding
+process remains simple and straight forward.
+
+The example below escapes the 5 required codes as well as the '\' character
+which is optional.
 ```
         for (cnt = 0 ; cnt < size ; cnt++)
         {
                 switch (input[cnt])
                 {
-                        case 0:
+                        case  0:
+                        case 10:
+                        case 11:
                                 *output++ = 192;
                                 *output++ = 128 + input[cnt] % 64;
                                 break;
 
                         case '\\':
-                                *output++ = 192 + input[cnt] / 64;
+                                *output++ = 193;
                                 *output++ = 128 + input[cnt] % 64;
                                 break;
 
                         case 192:
                         case 193:
-                        case 247:
-                                *output++ = 247;
+                                *output++ = 11;
                                 *output++ = 128 + input[cnt] % 64;
                                 break;
 
@@ -87,7 +95,7 @@ relatively easy.
         *output++ = 0;
 ```
 
-Translating Base252 data back to its original format is equally easy.
+Translating Base252 data back to its original format is even easier.
 ```
         for (cnt = 0 ; cnt < size ; cnt++)
         {
@@ -95,7 +103,7 @@ Translating Base252 data back to its original format is equally easy.
                 {
                         case 0xC0:
                                 cnt++;
-                                *output++ = 0 + input[cnt] % 128;
+                                *output++ = 0 + input[cnt] % 64;
                                 break;
 
                         case 0xC1:
@@ -103,7 +111,12 @@ Translating Base252 data back to its original format is equally easy.
                                 *output++ = 64 + input[cnt] % 64;
                                 break;
 
-                        case 0xF7:
+                        case 0x10:
+                                cnt++;
+                                *output++ = 128 + input[cnt] % 64;
+                                break;
+
+                        case 0x11:
                                 cnt++;
                                 *output++ = 192 + input[cnt] % 64;
                                 break;
@@ -154,25 +167,25 @@ complex pieces of software, which in turn increases the chance of accidental
 bugs.
 
 To address these issues VTON is typeless, simpel and logical. VTON knows the
-following 6 special symbols.
+following 6 special symbols in the escape character range.
 
 | Code | Hex  | Name | Symbol |
 |----- | ---- | ---- | ------ |
-| 248  | 0xF8 | VTON_VARIABLE    | $ |
-| 249  | 0xF9 | VTON_VALUE       | = |
-| 250  | 0xFA | VTON_TABLE_OPEN  | { |
-| 251  | 0xFB | VTON_TABLE_CLOSE | } |
-| 252  | 0xFC | VTON_ARRAY_OPEN  | [ |
-| 253  | 0xFD | VTON_ARRAY_CLOSE | ] |
+|   1  | 0x01 | VTON_VARIABLE    | $ |
+|   2  | 0x02 | VTON_VALUE       | = |
+|   3  | 0x03 | VTON_TABLE_OPEN  | { |
+|   4  | 0x04 | VTON_TABLE_CLOSE | } |
+|   5  | 0x05 | VTON_ARRAY_OPEN  | [ |
+|   6  | 0x06 | VTON_ARRAY_CLOSE | ] |
 
 
 VTON value assignment:
 ---------------------
 A VTON value assignment looks as following:
 ```
-248 VARIABLE_NAME 249 VALUE
+1 VARIABLE_NAME 2 VALUE
 ```
-248 and 249 are extended ASCII character 248 and 249. VARIABLE and VALUE are
+1 and 2 are ASCII character 1 and 2. VARIABLE and VALUE are
 UTF-8 encoded strings. To make things more readable I will also provide the
 same notation using symbols, which looks as following:
 ```
@@ -182,7 +195,7 @@ VTON table assignment:
 ----------------------
 A VTON table assignment looks as following:
 ```
-248 TABLE_NAME 250 248 VARIABLE_NAME 249 VALUE 248 VARIABLE_NAME 249 VALUE 251
+1 TABLE_NAME 3 1 VARIABLE_NAME 2 VALUE 1 VARIABLE_NAME 2 VALUE 4
 ```
 ```
 $TABLE_NAME
@@ -211,7 +224,7 @@ VTON array assignment
 ---------------------
 A VTON array assignment looks as following:
 ```
-248 ARRAY_NAME 252 249 VALUE1 249 VALUE2 249 VALUE3 253
+1 ARRAY_NAME 5 2 VALUE1 2 VALUE2 2 VALUE3 6
 ```
 ```
 $ARRAY_NAME
@@ -252,7 +265,7 @@ Displayability
 --------------
 A VTON viewer should be simple to create. If VTON becomes popular enough
 UTF-8 viewers might display VTON codes using specially assigned symbols
-instead of error symbols, since all VTON codes are illegal UTF-8 codes.
+instead of error symbols.
 
 Base252 + VTON
 --------------
