@@ -27,7 +27,7 @@ and anyone not familiar with the subject matter should read up on UTF-8 for a
 full explanation.
 
 Subsequently each instance of 0xC0 needs to be translated as well. If we
-were to stick with UTF-8 0xC0 could be translated to 0xC3, but this would
+were to stick with UTF-8, 0xC0 could be translated to 0xC3, but this would
 result in a lot of doubling for languages that use the unicode equivalent
 of the extended characters of ISO 8859-1.
 
@@ -39,32 +39,32 @@ Escaping
 
 Earlier we saw the escaping of 0x00 to 0xC0 0x80. However, in many cases
 programming languages have special characters that pose processing or security
-issues when they are not escaped. The \ character comes to mind, but in
+issues when they are not escaped. The \\ and " characters come to mind, but in
 theory any character can be a special character that needs to be escaped.
 
 In order to escape any ASCII character Base252 reserves 0xC0, 0xC1. The math
 to escape is simple and is semi UTF-8 compatible.
-```
+```c
 0xC0 + char / 64
 0x80 + char % 64
 ```
 In turn 0xC0 and 0xC1 need to be escaped using.
-```
+```c
 0x11
 0x80 + char % 64
 ```
 Subsequently we can fully escape character 0 through 255 with the exception
 of 0x10, 0x11, 0xC0 and 0xC1.
 
-Characters 128 through 191 cannot be as easily escaped when 128 through 191 is
-used for the second byte of each escape codes. Instead a value between 64 and
-127 or a value between 192 and 255 needs to be used to encode the second byte.
-Special care is needed in that case in order to encode, though the decoding
-process remains simple and straight forward.
+Characters 128 through 191 cannot be as easily escaped since 128 through 191 is
+typically used for the second byte of each escaped code. However, a value between
+192 and 255 could to be used to encode the second byte.
 
-The example below escapes the 5 required codes as well as the '\' character
-which is optional.
-```
+Special care is needed in that case in order to encode, though the decoding
+process remains identical.
+
+The example below escapes the 5 required codes as well as the '\\' character.
+```c
         for (cnt = 0 ; cnt < size ; cnt++)
         {
                 switch (input[cnt])
@@ -96,7 +96,7 @@ which is optional.
 ```
 
 Translating Base252 data back to its original format is even easier.
-```
+```c
         for (cnt = 0 ; cnt < size ; cnt++)
         {
                 switch (input[cnt])
@@ -197,7 +197,7 @@ A VTON table assignment looks as following:
 ```
 1 TABLE_NAME 3 1 VARIABLE_NAME 2 VALUE 1 VARIABLE_NAME 2 VALUE 4
 ```
-```
+```php
 $TABLE_NAME
 {
         $VARIABLE_NAME = VALUE
@@ -209,7 +209,7 @@ or VTON_ARRAY_OPEN.
 
 There is no concept of a comma which is not necessary because it's easy to keep
 track of key/value pairs. Multiple nests can be created.
-```
+```php
 $TABLE_NAME
 {
         $VARIABLE_NAME = VALUE
@@ -226,7 +226,7 @@ A VTON array assignment looks as following:
 ```
 1 ARRAY_NAME 5 2 VALUE1 2 VALUE2 2 VALUE3 6
 ```
-```
+```php
 $ARRAY_NAME
 [
         = VALUE
@@ -235,7 +235,7 @@ $ARRAY_NAME
 ]
 ```
 Since there is no comma the VTON_VALUE code is used to separate array values. Multiple nests can be created.
-```
+```php
 $ARRAY_NAME
 [
         [
@@ -263,9 +263,7 @@ converted to string notation.
 
 Displayability
 --------------
-A VTON viewer should be simple to create. If VTON becomes popular enough
-UTF-8 viewers might display VTON codes using specially assigned symbols
-instead of error symbols.
+A VTON viewer should be relatively simple to create.
 
 Base252 + VTON
 --------------
