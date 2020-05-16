@@ -229,9 +229,9 @@ A VTON array assignment looks as following:
 ```php
 $ARRAY_NAME
 [
-        = VALUE
-        = VALUE
-        = VALUE
+        = VALUE1
+        = VALUE2
+        = VALUE3
 ]
 ```
 Since there is no comma the VTON_VALUE code is used to separate array values. Multiple nests can be created.
@@ -290,4 +290,4 @@ VTON parser
 In order to parse VTON you need a VTON parser. While it doesn't take much code
 to write a VTON parser the concept can be difficult to wrap your head around.
 
-I'll try to publish my VTON parser in a couple of days.
+I'll try to publish my VTON parser in the near future.
