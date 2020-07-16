@@ -1,7 +1,7 @@
 VTON (Virtual Terminal Object Notation)
 ---------------------------------------
 
-The VTON encodings draw inspiration from UTF-8, VT100, and TELNET.
+The VTON encoding draws inspiration from UTF-8, VT100, and TELNET.
 
 VTON uses Base252 encoding for binary data which is described here:
 
