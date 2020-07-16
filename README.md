@@ -1,144 +1,12 @@
-VTON (Virtual Terminal Object Notation) and Base252
----------------------------------------------------
+VTON (Virtual Terminal Object Notation)
+---------------------------------------
 
-The VTON and Base252 encodings draw inspiration from UTF-8, VT100, and TELNET.
-Base252 can stand alone, while VTON incorporates Base252.
+The VTON encodings draw inspiration from UTF-8, VT100, and TELNET.
 
-Base252 is an alternative for Base64, while VTON seeks to create an efficient
-and simple universal object notation.
+VTON uses Base252 encoding for binary data which is described here:
 
-Base252
--------
+https://github.com/scandum/base252
 
-| Code |  Hex | Name    | Escape |
-|----- | ---- | ------  | ------ |
-|  0   | 0x00 | NUL     | 0xC0 0x80 |
-| 192  | 0xC0 | ESC_0   | 0x11 0x80 |
-| 193  | 0xC1 | ESC_64  | 0x11 0x81 |
-|  16  | 0x10 | ESC_128 | 0xC0 0x90 |
-|  17  | 0x11 | ESC_192 | 0xC0 0x91 |
-
-Translating binary data to Base252
-----------------------------------
-
-The first step is to convert the data into strings. This is done by translating
-each NUL byte 0x00 to 0xC0 0x80. This is the type of escaping allowed by UTF-8
-and anyone not familiar with the subject matter should read up on UTF-8 for a
-full explanation.
-
-Subsequently each instance of 0xC0 needs to be translated as well. If we
-were to stick with UTF-8, 0xC0 could be translated to 0xC3, but this would
-result in a lot of doubling for languages that use the unicode equivalent
-of the extended characters of ISO 8859-1.
-
-So instead each instance of 0xC0 is translated to 0x11 0x80. And in turn
-each instance of 0x11 needs to be translated to 0xC0 0x91.
-
-Escaping
---------
-
-Earlier we saw the escaping of 0x00 to 0xC0 0x80. However, in many cases
-programming languages have special characters that pose processing or security
-issues when they are not escaped. The \\ and " characters come to mind, but in
-theory any character can be a special character that needs to be escaped.
-
-In order to escape any ASCII character Base252 reserves 0xC0, 0xC1. The math
-to escape is simple and is semi UTF-8 compatible.
-```c
-0xC0 + char / 64
-0x80 + char % 64
-```
-In turn 0xC0 and 0xC1 need to be escaped using.
-```c
-0x11
-0x80 + char % 64
-```
-Subsequently we can fully escape character 0 through 255 with the exception
-of 0x10, 0x11, 0xC0 and 0xC1.
-
-Characters 128 through 191 cannot be as easily escaped since 128 through 191 is
-typically used for the second byte of each escaped code. However, a value between
-192 and 255 could to be used to encode the second byte.
-
-Special care is needed in that case in order to encode, though the decoding
-process remains identical.
-
-The example below escapes the 5 required codes as well as the '\\' character.
-```c
-        for (cnt = 0 ; cnt < size ; cnt++)
-        {
-                switch (input[cnt])
-                {
-                        case  0:
-                        case 10:
-                        case 11:
-                                *output++ = 192;
-                                *output++ = 128 + input[cnt] % 64;
-                                break;
-
-                        case '\\':
-                                *output++ = 193;
-                                *output++ = 128 + input[cnt] % 64;
-                                break;
-
-                        case 192:
-                        case 193:
-                                *output++ = 11;
-                                *output++ = 128 + input[cnt] % 64;
-                                break;
-
-                        default:
-                                *output++ = input[cnt];
-                                break;
-                }
-        }
-        *output++ = 0;
-```
-
-Translating Base252 data back to its original format is even easier.
-```c
-        for (cnt = 0 ; cnt < size ; cnt++)
-        {
-                switch (input[cnt])
-                {
-                        case 0xC0:
-                                cnt++;
-                                *output++ = 0 + input[cnt] % 64;
-                                break;
-
-                        case 0xC1:
-                                cnt++;
-                                *output++ = 64 + input[cnt] % 64;
-                                break;
-
-                        case 0x10:
-                                cnt++;
-                                *output++ = 128 + input[cnt] % 64;
-                                break;
-
-                        case 0x11:
-                                cnt++;
-                                *output++ = 192 + input[cnt] % 64;
-                                break;
-
-                        default:
-                                *output++ = input[cnt];
-                                break;
-                }
-        }
-        *output++ = 0;
-```
-
-Overhead
---------
-After this conversion we have a best case overhead of 0% (notably when turning
-ASCII or UTF-8 into Base252) and a worst case overhead of 100%. The average
-case should be an overhead of 1.7% and this should also be the typical case
-for compressed data, like images.
-
-
-VTON
-----
 While Base252 stands by itself there is an annoying issue in computer science
 that has yet to be properly addressed.
 
@@ -157,8 +25,8 @@ up on data types for more information.
 
 JSON further adds various escaping requirements to aid in human readability.
 However, the utility of this is questionable whenever the chance of a human
-actually looking at a data exchange is less than 0.0001%, and those that
-actually do look at a data exchange are unlikely to be confused by the
+actually looking at a data exchange is less than 0.0001%, while those that
+do look at machine 2 machine data exchanges are unlikely to be confused by the
 inclusion of escape characters. Not to mention they could use a special
 viewer that displays escape characters in a readable manner.
 
@@ -189,19 +57,19 @@ A VTON value assignment looks as following:
 UTF-8 encoded strings. To make things more readable I will also provide the
 same notation using symbols, which looks as following:
 ```
-$VARIABLE_NAME = VALUE
+$VARIABLE_NAME : VALUE
 ```
 VTON table assignment:
 ----------------------
 A VTON table assignment looks as following:
 ```
-1 TABLE_NAME 3 1 VARIABLE_NAME 2 VALUE 1 VARIABLE_NAME 2 VALUE 4
+1 TABLE_NAME 2 3 1 VARIABLE_NAME 2 VALUE 1 VARIABLE_NAME 2 VALUE 4
 ```
 ```php
-$TABLE_NAME
+$TABLE_NAME :
 {
-        $VARIABLE_NAME = VALUE
-        $VARIABLE_NAME = VALUE
+        $VARIABLE_NAME : VALUE
+        $VARIABLE_NAME : VALUE
 }
 ```
 A variable assignment must be terminated by either VTON_VALUE, VTON_TABLE_OPEN,
@@ -210,13 +78,13 @@ or VTON_ARRAY_OPEN.
 There is no concept of a comma which is not necessary because it's easy to keep
 track of key/value pairs. Multiple nests can be created.
 ```php
-$TABLE_NAME
+$TABLE_NAME :
 {
-        $VARIABLE_NAME = VALUE
-        $TABLE_NAME
+        $VARIABLE_NAME : VALUE
+        $TABLE_NAME :
         {
-                VARIABLE = VALUE
-                VARIABLE = VALUE
+                VARIABLE : VALUE
+                VARIABLE : VALUE
         }
 }
 ```
@@ -224,28 +92,17 @@ VTON array assignment
 ---------------------
 A VTON array assignment looks as following:
 ```
-1 ARRAY_NAME 5 2 VALUE1 2 VALUE2 2 VALUE3 6
+1 ARRAY_NAME 2 5 2 VALUE1 2 VALUE2 2 VALUE3 6
 ```
 ```php
-$ARRAY_NAME
-[
-        = VALUE1
-        = VALUE2
-        = VALUE3
-]
+$ARRAY_NAME : [ : VALUE1 : VALUE2 : VALUE3 ]
 ```
 Since there is no comma the VTON_VALUE code is used to separate array values. Multiple nests can be created.
 ```php
-$ARRAY_NAME
+$ARRAY_NAME :
 [
-        [
-                = VALUE
-                = VALUE
-        ]
-        [
-                = VALUE
-                = VALUE
-        ]
+        : [ : VALUE1 : VALUE1 ]
+        : [ : VALUE1 : VALUE2 ]
 ]
 ```
 Variable names
@@ -277,9 +134,6 @@ best case remains 0% for ASCII and UTF-8 encoded text.
 
 The overhead of VTON compared to JSON is trickier to calculate, except that
 the VTON overhead is less in any given scenario.
-
-For binary data you are pretty much forced to use Base64 with JSON which
-means a 33.3% data overhead as well as a computational overhead.
 
 While JSON is readable, it is only readable by including spacing which further
 increases the data overhead. One could argue that spacing could be removed,
