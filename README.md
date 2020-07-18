@@ -39,21 +39,21 @@ following 6 special symbols in the escape character range.
 
 | Code | Hex  | Name | Symbol |
 |----- | ---- | ---- | ------ |
-|   1  | 0x01 | VTON_VARIABLE    | $ |
-|   2  | 0x02 | VTON_VALUE       | = |
-|   3  | 0x03 | VTON_TABLE_OPEN  | { |
-|   4  | 0x04 | VTON_TABLE_CLOSE | } |
-|   5  | 0x05 | VTON_ARRAY_OPEN  | [ |
-|   6  | 0x06 | VTON_ARRAY_CLOSE | ] |
+| 249  | 0xF9 | VTON_VARIABLE    | $ |
+| 250  | 0xFA | VTON_VALUE       | = |
+| 251  | 0xFB | VTON_TABLE_OPEN  | { |
+| 252  | 0xFC | VTON_TABLE_CLOSE | } |
+| 253  | 0xFD | VTON_ARRAY_OPEN  | [ |
+| 254  | 0xFE | VTON_ARRAY_CLOSE | ] |
 
 
 VTON value assignment:
 ---------------------
 A VTON value assignment looks as following:
 ```
-1 VARIABLE_NAME 2 VALUE
+249 VARIABLE_NAME 250 VALUE
 ```
-1 and 2 are ASCII character 1 and 2. VARIABLE and VALUE are
+249 and 250 are byte characters with the corresponding value. VARIABLE and VALUE are
 UTF-8 encoded strings. To make things more readable I will also provide the
 same notation using symbols, which looks as following:
 ```
@@ -63,7 +63,7 @@ VTON table assignment:
 ----------------------
 A VTON table assignment looks as following:
 ```
-1 TABLE_NAME 2 3 1 VARIABLE_NAME 2 VALUE 1 VARIABLE_NAME 2 VALUE 4
+249 TABLE_NAME 250 251 249 VARIABLE_NAME 250 VALUE 249 VARIABLE_NAME 250 VALUE 252
 ```
 ```php
 $TABLE_NAME :
@@ -92,7 +92,7 @@ VTON array assignment
 ---------------------
 A VTON array assignment looks as following:
 ```
-1 ARRAY_NAME 2 5 2 VALUE1 2 VALUE2 2 VALUE3 6
+249 ARRAY_NAME 250 253 250 VALUE1 250 VALUE2 250 VALUE3 254
 ```
 ```php
 $ARRAY_NAME : [ : VALUE1 : VALUE2 : VALUE3 ]
