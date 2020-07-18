@@ -32,7 +32,7 @@ viewer that displays escape characters in a readable manner.
 
 JSON adds further rules and restrictions that result in JSON parsers being
 complex pieces of software, which in turn increases the chance of accidental
-bugs.
+bugs and inconsistent behavior between parsers.
 
 To address these issues VTON is typeless, simpel and logical. VTON knows the
 following 6 special symbols in the escape character range.
