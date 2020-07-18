@@ -144,4 +144,5 @@ VTON parser
 In order to parse VTON you need a VTON parser. While it doesn't take much code
 to write a VTON parser the concept can be difficult to wrap your head around.
 
-I'll try to publish my VTON parser in the near future.
+The vton.c file contains two utility functions to change vton to json and back
+which might be of some use to someone.
