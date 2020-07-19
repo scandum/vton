@@ -1,18 +1,15 @@
 VTON (Virtual Terminal Object Notation)
 ---------------------------------------
 
-The VTON encoding draws inspiration from UTF-8, VT100, and TELNET.
+The VTON encoding draws inspiration from UTF-8, VT100, and TELNET. It provides
+a typeless object notation system.
 
-VTON uses Base252 encoding for binary data which is described here:
-
-https://github.com/scandum/base252
-
-While Base252 stands by itself there is an annoying issue in computer science
-that has yet to be properly addressed.
+Background
+----------
 
 It wasn't until the mid 90s that computer scientists realized the need for a
 universal structured data format, and one of the answers to this need was XML
-which was created in 1996 and JSON which was created in 2013.
+which was created in 1996 and JSON which was created in 2002.
 
 Both XML and JSON have strengths and weaknesses. The goal of VTON (Virtual
 Terminal Object Notation) is to create an object notation that is compact,
@@ -23,7 +20,7 @@ escapability, and complexity. It is verbose because it is typed while
 typing is often irrelevant, typing also adds unnecessary complexity. Read
 up on data types for more information.
 
-JSON further adds various escaping requirements to aid in human readability.
+JSON adds various escaping requirements to aid in human readability.
 However, the utility of this is questionable whenever the chance of a human
 actually looking at a data exchange is less than 0.0001%, while those that
 do look at machine 2 machine data exchanges are unlikely to be confused by the
@@ -32,10 +29,16 @@ viewer that displays escape characters in a readable manner.
 
 JSON adds further rules and restrictions that result in JSON parsers being
 complex pieces of software, which in turn increases the chance of accidental
-bugs and inconsistent behavior between parsers.
+bugs and inconsistent behavior between parsers. JSON also contains restrictions
+that could be considered wholy unnecessary, like the requirement for strings
+to encode valid unicode codepoints.
 
-To address these issues VTON is typeless, simpel and logical. VTON knows the
-following 6 special symbols in the escape character range.
+VTON tries to address these issues.
+
+Definition
+----------
+
+VTON knows the following 6 special symbols outside the UTF-8 character range.
 
 | Code | Hex  | Name | Symbol |
 |----- | ---- | ---- | ------ |
@@ -54,8 +57,8 @@ A VTON value assignment looks as following:
 249 VARIABLE_NAME 250 VALUE
 ```
 249 and 250 are byte characters with the corresponding value. VARIABLE and VALUE are
-UTF-8 encoded strings. To make things more readable I will also provide the
-same notation using symbols, which looks as following:
+strings. To make things more readable I will also provide the same notation using
+symbols most programmers are familiar with, which looks as following:
 ```
 $VARIABLE_NAME : VALUE
 ```
@@ -112,6 +115,13 @@ numbers, and underscores. They should also be case sensitive. While VTON is
 flexible that doesn't mean that the programming languages interacting with
 VTON data are.
 
+Values
+------
+Values should not contain a 0 byte, or byte values between 249 and 254. VTON
+does not define a default escaping mechanism because all UTF-8 sequences
+are valid. Base252 is suggested for embedding other encodings as well as binary
+data.
+
 Compatibility
 -------------
 VTON is easy to convert to JSON and back, with the exception that data cannot
@@ -127,22 +137,17 @@ Base252 + VTON
 By combining Base252 and VTON you end up with the ability to incorporate
 binary data that is easy to encode and decode.
 
+https://github.com/scandum/base252
+
 VTON overhead
 -------------
-Compared to Base252 VTON changes the average overhead from 1.7% to 4%. The
-best case remains 0% for ASCII and UTF-8 encoded text.
-
-The overhead of VTON compared to JSON is trickier to calculate, except that
-the VTON overhead is less in any given scenario.
-
-While JSON is readable, it is only readable by including spacing which further
-increases the data overhead. One could argue that spacing could be removed,
-but then the argument that JSON is more readable than VTON is moot.
+Base252 encodes binary data with an average overhead of 1.7%, when using Base252
+in conjunction with VTON you also need to escape byte values in the 249 to 254 range,
+which brings the average overhead to 4%.
 
 VTON parser
 -----------
 In order to parse VTON you need a VTON parser. While it doesn't take much code
-to write a VTON parser the concept can be difficult to wrap your head around.
+to write a VTON parser, nesting can be difficult to wrap your head around.
 
-The vton.c file contains two utility functions to change vton to json and back
-which might be of some use to someone.
+The vton.c file contains two utility functions to change VTON to JSON and back.
