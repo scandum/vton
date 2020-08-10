@@ -43,7 +43,7 @@ VTON knows the following 6 special symbols outside the UTF-8 character range.
 | Code | Hex  | Name | Symbol |
 |----- | ---- | ---- | ------ |
 | 249  | 0xF9 | VTON_VARIABLE    | $ |
-| 250  | 0xFA | VTON_VALUE       | = |
+| 250  | 0xFA | VTON_VALUE       | : |
 | 251  | 0xFB | VTON_TABLE_OPEN  | { |
 | 252  | 0xFC | VTON_TABLE_CLOSE | } |
 | 253  | 0xFD | VTON_ARRAY_OPEN  | [ |
