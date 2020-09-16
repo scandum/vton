@@ -89,8 +89,8 @@ pairs. Multiple nests can be created.
         249 VARIABLE_NAME 250 VALUE
         249 TABLE_NAME 250
         251
-                249 VARIABLE_NAME1 250 VALUE
-                249 VARIABLE_NAME2 250 VALUE
+                249 VARIABLE_NAME 250 VALUE
+                249 VARIABLE_NAME 250 VALUE
         252
 252
 ```
@@ -100,8 +100,8 @@ $TABLE_NAME :
         $VARIABLE_NAME : VALUE
         $TABLE_NAME :
         {
-                $VARIABLE_NAME1 : VALUE
-                $VARIABLE_NAME2 : VALUE
+                $VARIABLE_NAME : VALUE
+                $VARIABLE_NAME : VALUE
         }
 }
 ```
@@ -109,24 +109,24 @@ VTON array assignment
 ---------------------
 A VTON array assignment looks as following:
 ```
-249 ARRAY_NAME 250 253 250 VALUE1 250 VALUE2 250 VALUE3 254
+249 ARRAY_NAME 250 253 250 VALUE 250 VALUE 250 VALUE 254
 ```
 ```php
-$ARRAY_NAME : [ : VALUE1 : VALUE2 : VALUE3 ]
+$ARRAY_NAME : [ : VALUE : VALUE : VALUE ]
 ```
 Since there is no comma the VTON_VALUE code is used to separate array values. Multiple nests can be created.
 ```
 249 ARRAY_NAME 250
 253
-        250 253 250 VALUE1 250 VALUE2 254
-        250 253 250 VALUE1 250 VALUE2 254
+        250 253 250 VALUE 250 VALUE 254
+        250 253 250 VALUE 250 VALUE 254
 254
 ```
 ```php
 $ARRAY_NAME :
 [
-        : [ : VALUE1 : VALUE2 ]
-        : [ : VALUE1 : VALUE2 ]
+        : [ : VALUE : VALUE ]
+        : [ : VALUE : VALUE ]
 ]
 ```
 Variable names
