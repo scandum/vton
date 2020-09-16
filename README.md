@@ -59,7 +59,7 @@ A VTON value assignment looks as following:
 249 and 250 are byte characters with the corresponding value. VARIABLE and VALUE are
 strings. To make things more readable I will also provide the same notation using
 symbols most programmers are familiar with, which looks as following:
-```
+```php
 $VARIABLE_NAME : VALUE
 ```
 VTON table assignment:
