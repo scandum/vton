@@ -75,19 +75,16 @@ $TABLE_NAME :
         $VARIABLE_NAME : VALUE
 }
 ```
-A variable assignment must be terminated by either VTON_VALUE, VTON_TABLE_OPEN,
-or VTON_ARRAY_OPEN.
-
-There is no concept of a comma which is not necessary because it's easy to keep
-track of key/value pairs. Multiple nests can be created.
+There is no concept of a comma, this because it's easy to keep track of key/value
+pairs. Multiple nests can be created.
 ```php
 $TABLE_NAME :
 {
         $VARIABLE_NAME : VALUE
         $TABLE_NAME :
         {
-                VARIABLE : VALUE
-                VARIABLE : VALUE
+                $VARIABLE : VALUE
+                $VARIABLE : VALUE
         }
 }
 ```
