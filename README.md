@@ -30,7 +30,7 @@ viewer that displays escape characters in a readable manner.
 JSON adds further rules and restrictions that result in JSON parsers being
 complex pieces of software, which in turn increases the chance of accidental
 bugs and inconsistent behavior between parsers. JSON also contains restrictions
-that could be considered wholy unnecessary, like the requirement for strings
+that could be considered wholly unnecessary, like the requirement for strings
 to encode valid unicode codepoints.
 
 VTON tries to address these issues.
@@ -57,16 +57,22 @@ A VTON value assignment looks as following:
 249 VARIABLE_NAME 250 VALUE
 ```
 249 and 250 are byte characters with the corresponding value. VARIABLE and VALUE are
-strings. To make things more readable I will also provide the same notation using
+strings.
+
+To make things more readable I will also provide the same notation using
 symbols most programmers are familiar with, which looks as following:
 ```php
 $VARIABLE_NAME : VALUE
 ```
 VTON table assignment:
 ----------------------
-A VTON table assignment looks as following:
+A VTON table assignment looks as following.
 ```
-249 TABLE_NAME 250 251 249 VARIABLE_NAME 250 VALUE 249 VARIABLE_NAME 250 VALUE 252
+249 TABLE_NAME 250
+251
+        249 VARIABLE_NAME 250 VALUE
+        249 VARIABLE_NAME 250 VALUE
+252
 ```
 ```php
 $TABLE_NAME :
@@ -77,14 +83,25 @@ $TABLE_NAME :
 ```
 There is no concept of a comma, this because it's easy to keep track of key/value
 pairs. Multiple nests can be created.
+```
+249 TABLE_NAME 250
+251
+        249 VARIABLE_NAME 250 VALUE
+        249 TABLE_NAME 250
+        251
+                249 VARIABLE_NAME1 250 VALUE
+                249 VARIABLE_NAME2 250 VALUE
+        252
+252
+```
 ```php
 $TABLE_NAME :
 {
         $VARIABLE_NAME : VALUE
         $TABLE_NAME :
         {
-                $VARIABLE : VALUE
-                $VARIABLE : VALUE
+                $VARIABLE_NAME1 : VALUE
+                $VARIABLE_NAME2 : VALUE
         }
 }
 ```
@@ -98,10 +115,17 @@ A VTON array assignment looks as following:
 $ARRAY_NAME : [ : VALUE1 : VALUE2 : VALUE3 ]
 ```
 Since there is no comma the VTON_VALUE code is used to separate array values. Multiple nests can be created.
+```
+249 ARRAY_NAME 250
+253
+        250 253 250 VALUE1 250 VALUE2 254
+        250 253 250 VALUE1 250 VALUE2 254
+254
+```
 ```php
 $ARRAY_NAME :
 [
-        : [ : VALUE1 : VALUE1 ]
+        : [ : VALUE1 : VALUE2 ]
         : [ : VALUE1 : VALUE2 ]
 ]
 ```
